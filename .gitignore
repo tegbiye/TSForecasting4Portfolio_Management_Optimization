@@ -1,0 +1,8 @@
+.tsenv/
+*.logs
+*.log
+*.tmp
+data/
+__pycache__/
+*.pyc
+*.pyo
