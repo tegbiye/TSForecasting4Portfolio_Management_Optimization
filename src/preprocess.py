@@ -182,6 +182,7 @@ def plot_series(df: pd.DataFrame, outdir: str, prefix: str = ''):
         fname = Path(outdir) / f"{prefix}{col}_timeseries.png"
         plt.tight_layout()
         plt.savefig(fname)
+        plt.show()
         plt.close()
 
 
@@ -197,6 +198,7 @@ def plot_returns(returns: pd.DataFrame, outdir: str):
         fname = Path(outdir) / f"returns_{col}.png"
         plt.tight_layout()
         plt.savefig(fname)
+        plt.show()
         plt.close()
 
 
@@ -217,127 +219,5 @@ def plot_correlation(returns: pd.DataFrame, outdir: str):
     fname = Path(outdir) / "returns_correlation_heatmap.png"
     plt.tight_layout()
     plt.savefig(fname)
+    plt.show()
     plt.close()
-
-
-def main(args):
-    outdir = Path(args.output_dir)
-    outdir.mkdir(parents=True, exist_ok=True)
-
-    if args.source == 'csv':
-        print(f"Loading CSV from {args.csv_path} ...")
-        data_raw = reconstruct_from_two_row_csv(args.csv_path)
-        # find close columns
-        close_cols = [c for c in data_raw.columns if c.endswith('_Close')]
-        if not close_cols:
-            raise RuntimeError("No close columns detected in reconstructed CSV. Expected columns like TSLA_Close, SPY_Close, BND_Close")
-        # Make tidy df
-        tidy = data_raw[['Date'] + close_cols].copy()
-
-    elif args.source == 'yfinance':
-        if not YFINANCE_AVAILABLE:
-            raise RuntimeError('yfinance not available in environment')
-        tickers = args.tickers
-        print(f"Fetching {tickers} from yfinance {args.start} to {args.end} ...")
-        adj = fetch_with_yfinance(tickers, args.start, args.end)
-        # adj columns are like 'TSLA_Close' depending on rename in fetch func
-        close_cols = [c for c in adj.columns if c.endswith('_Close')]
-        tidy = adj[['Date'] + close_cols].copy()
-    else:
-        raise ValueError("source must be 'csv' or 'yfinance'")
-
-    # Prepare time index and interpolation
-    df_clean = prepare_time_index_and_interpolate(tidy, close_cols)
-
-    # Save tidy cleaned close prices
-    tidy_out = outdir / 'tidy_close_prices.csv'
-    df_clean.reset_index().to_csv(tidy_out, index=False)
-    print('Saved tidy close prices to', tidy_out)
-
-    # Compute returns and rolling stats
-    returns, rolling_mean, rolling_std = compute_returns_and_rolling(df_clean, window=args.rolling_window)
-
-    # Save returns
-    returns_out = outdir / 'daily_returns.csv'
-    returns.reset_index().to_csv(returns_out, index=False)
-    print('Saved daily returns to', returns_out)
-
-    # Outliers
-    outlier_days, _mask = detect_outliers(returns, z_thresh=args.z_threshold)
-    outlier_out = outdir / 'outlier_days.csv'
-    outlier_days.reset_index().to_csv(outlier_out, index=False)
-    print('Saved outlier days to', outlier_out)
-
-    # Risk metrics
-    VaR, sharpe_annual = compute_var_sharpe(returns, rf=args.risk_free_rate)
-    VaR.to_csv(outdir / 'VaR.csv')
-    sharpe_annual.to_csv(outdir / 'Sharpe_annual.csv')
-
-    # ADF tests
-    adf_results = {}
-    if STATSMODELS_AVAILABLE:
-        for c in df_clean.columns:
-            adf_results[c] = adf_test(df_clean[c])
-        for c in returns.columns:
-            adf_results[f"{c}_returns"] = adf_test(returns[c])
-        # Save ADF summary
-        with open(outdir / 'adf_results.txt', 'w') as f:
-            for k,v in adf_results.items():
-                f.write(f"{k}: p={v['pvalue']}, adf_stat={v['adf_stat']}\n")
-    else:
-        print('statsmodels not available; skipping ADF tests')
-
-    # Save cleaned dataframe for modeling
-    df_clean.reset_index().to_csv(outdir / 'clean_close_prices_for_analysis.csv', index=False)
-
-    # Plots
-    plot_series(df_clean, outdir, prefix='close_')
-    plot_returns(returns, outdir)
-
-    # New: Correlation heatmap
-    plot_correlation(returns, outdir)
-
-    # New: Cumulative returns
-    cum_returns = (1 + returns).cumprod()
-    plot_series(cum_returns, outdir, prefix='cum_returns_')
-
-    # Rolling mean/std example plot for TSLA (if present)
-    example_col = None
-    for candidate in ['TSLA_Close', 'SPY_Close', 'BND_Close']:
-        if candidate in df_clean.columns:
-            example_col = candidate
-            break
-    if example_col:
-        fig, ax = plt.subplots(figsize=(12,5))
-        ax.plot(df_clean.index, df_clean[example_col].rolling(args.rolling_window).mean(), label=f'{args.rolling_window}d mean')
-        ax.plot(df_clean.index, df_clean[example_col].rolling(args.rolling_window).std(), label=f'{args.rolling_window}d std')
-        ax.set_title(f"{example_col} rolling mean and std")
-        ax.legend()
-        fig.savefig(outdir / f"{example_col}_rolling_mean_std.png")
-        plt.close(fig)
-
-    # Print a short summary to console
-    print('\n=== Summary ===')
-    print('Sample means of daily returns:')
-    print(returns.mean().to_string())
-    print('\nSample std dev of daily returns:')
-    print(returns.std().to_string())
-    print('\nVaR:')
-    print(VaR.to_string())
-    print('\nAnnualized Sharpe (rf=' + str(args.risk_free_rate) + '):')
-    print(sharpe_annual.to_string())
-
-
-if __name__ == '__main__':
-    p = argparse.ArgumentParser(description='Finance EDA & Preprocessing Pipeline')
-    p.add_argument('--source', choices=['csv','yfinance'], default='csv', help='Data source')
-    p.add_argument('--csv_path', type=str, default='/mnt/data/comp_hist_finance_data.csv', help='Path to uploaded CSV (two-row header)')
-    p.add_argument('--tickers', nargs='+', default=['TSLA','SPY','BND'], help='Tickers to fetch if using yfinance')
-    p.add_argument('--start', type=str, default='2015-01-01', help='Start date for yfinance fetch (YYYY-MM-DD)')
-    p.add_argument('--end', type=str, default='2025-08-12', help='End date for yfinance fetch (YYYY-MM-DD)')
-    p.add_argument('--output_dir', type=str, default='./finance_eda_output', help='Directory for outputs')
-    p.add_argument('--rolling_window', type=int, default=20, help='Window size for rolling stats')
-    p.add_argument('--z_threshold', type=float, default=3.0, help='Z-score threshold for outlier detection')
-    p.add_argument('--risk_free_rate', type=float, default=0.0, help='Risk-free rate for Sharpe ratio (daily rate)')
-    args = p.parse_args()
-    main(args)
