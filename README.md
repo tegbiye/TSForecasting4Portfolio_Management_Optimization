@@ -20,7 +20,55 @@
 
 ![TSLA Banner](./images/TSLA_Close_Time_Series.png)
 
-# Task 2: 
+# Task 2: Develop Time Series Forecasting Models
+
+With the split of the data as Train (2015-2023), Test (2024-2025)
+
+And the models used are SARIMA, and LSTM
+
+The metrics result are done with MAE, RMSE, MAPE
+
+#### Results
+
+SARIMA Metrics: MAE=82.78, RMSE=103.37, MAPE=29.18%
+LSTM Metrics: MAE=10.17, RMSE=14.49, MAPE=3.69%
+
+![BND Banner](./images/output_forecast_comparison.png)
+
+#### Discussion
+
+1. Mean Absolute Error (MAE)
+
+    Measures the average absolute difference between the predicted and actual values.
+
+    SARIMA: 82.78 → On average, SARIMA’s predictions are about $82.78 away from the actual stock price.
+
+    LSTM: 10.17 → On average, LSTM’s predictions are about $10.17 away.
+
+    👉 Lower is better → LSTM performs much better.
+2. Root Mean Squared Error (RMSE)
+
+    Similar to MAE but penalizes larger errors more (since errors are squared).
+
+    SARIMA: 103.37
+
+    LSTM: 14.49
+
+    👉 Again, lower is better → LSTM clearly outperforms SARIMA.
+
+3. Mean Absolute Percentage Error (MAPE)
+
+    Expresses error as a percentage of the actual values → useful for interpretability.
+
+    SARIMA: 29.18% → Predictions are off by ~29% on average.
+
+    LSTM: 3.69% → Predictions are off by ~3.7% on average.
+
+    👉 LSTM provides far more accurate percentage-based predictions.
+
+The LSTM model is significantly more accurate than SARIMA for forecasting TSLA stock price, as seen by the much lower MAE, RMSE, and MAPE values.
+
+SARIMA has much higher forecast uncertainty (shown in the wide gray cone in the plot), while LSTM follows the test data more closely.
 
 # Project Structure
 
