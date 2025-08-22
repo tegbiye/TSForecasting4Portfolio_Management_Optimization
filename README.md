@@ -20,7 +20,7 @@
 
 ![TSLA Banner](./images/TSLA_Close_Time_Series.png)
 
-
+# Task 2: 
 
 # Project Structure
 
@@ -31,17 +31,21 @@ TSForecasting4Portfolio_Management_Optimization/
 ├── data/                       # add this folder to .gitignore
 │   ├── raw/                   # Raw data goes here 
 │   └── processed/             # Processed data
+├── images/
 ├── notebooks/
 │   └── README.md
-|   └── preprocess-explore.ipynb   
+|   ├── forcast-model-ts.ipynb   # forecast model time series
+|   └── preprocess-explore.ipynb   # Preprocess and explore
 ├── src/
 │   └── __init__.py
-|   └── preprocess.py  
+|   ├── forecast.py        # helper function for forcasting
+|   └── preprocess.py      # helper function for preprocess
 ├── tests/
 |   ├── __init__.py
-|   ├── test_preprocess.py
+|   ├── test_preprocess.py   # unit test for preprocess
+|   ├── test_forecast.py     # unit test for forecast
 │   └── test_add.py         # Unit tests
-├── requirements.txt
+├── requirements.txt        # required libs
 ├── .gitignore
 ├── LICENSE
 └── README.md
