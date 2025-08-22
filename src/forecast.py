@@ -11,8 +11,8 @@ import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 from datetime import datetime
 
-# Create sequences (window size=60 days)
-def create_sequences(data, seq_length=60):
+# Create sequences (window size=90 days)
+def create_sequences(data, seq_length=90):
     X, y = [], []
     for i in range(len(data) - seq_length):
         X.append(data[i:i+seq_length])
