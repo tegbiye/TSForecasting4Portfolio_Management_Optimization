@@ -70,8 +70,46 @@ The LSTM model is significantly more accurate than SARIMA for forecasting TSLA s
 
 SARIMA has much higher forecast uncertainty (shown in the wide gray cone in the plot), while LSTM follows the test data more closely.
 
-# Project Structure
+# Task 3: Forecast Future Market Trends
 
+Based on the model developed in Task 2, LSTM perfromed best and I used LSTM for the forcasting the future market trends.
+
+Visualization
+
+> The visualization shows TSLA’s historical prices (train: 2015–2023, test: 2024–August 24, 2025)
+> The LSTM forecast from August 24, 2025, to August 24, 2026 (~252 business days).
+
+![Forecast Banner](./images/output_forecast_market.png)
+
+### Interpret the Results
+
+> For the trend analysis, 
+  - the forecast likely indicates an upward trend, continuing TSLA’s growth (CAGR ~33% from Task 1) from ~$319 (August 24, 2025) to $350–$400 by August 2026 (~10–25% increase), driven by AI and energy initiatives.
+
+For the volatility and risk:
+> Uncertainty Level: The 95% CI, based on RMSE=16.36, suggests a ±~$30–40 range around the forecast. For ~$350, this is a ±8–12% range, indicating moderate uncertainty.
+> Width Change Over Time: The CI width likely increases over 12 months, from ±$25 (September 2025) to ±$40–50 (August 2026), reflecting error accumulation.
+> Implications:
+
+   - Reliability decreases for long-term forecasts (>6 months).
+
+   - Short-term predictions (1–3 months) are more certain,
+
+   - while 12-month forecasts carry higher risk.
+
+For market oportunities and risks:
+> Opportunities
+  - Price Increases: A rise to $380–$400 suggests a 19–25% gain, supporting long positions or call options by November 2025.
+  - Growth Catalysts: AI (FSD) or energy storage growth could boost demand
+
+> Risks
+  - High Volatility: ±$30–40 CI indicates drops to $310–$320 or overshoots to $430, especially with EV competition.
+  - Economic Factors: A 2026 recession or rate hikes could reverse the trend.
+  - Event Risks: Regulatory changes could exceed the CI.
+
+
+
+# Project Structure
 
 <pre>
 TSForecasting4Portfolio_Management_Optimization/
@@ -82,6 +120,7 @@ TSForecasting4Portfolio_Management_Optimization/
 ├── images/
 ├── notebooks/
 │   └── README.md
+|   ├── forcast-future-market.ipynb   # future forecast model time series
 |   ├── forcast-model-ts.ipynb   # forecast model time series
 |   └── preprocess-explore.ipynb   # Preprocess and explore
 ├── src/
