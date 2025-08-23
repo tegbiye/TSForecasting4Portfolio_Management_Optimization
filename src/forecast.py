@@ -33,13 +33,11 @@ class TimeSeriesDataset(Dataset):
             return self.X[idx], self.y[idx]
         return self.X[idx]
 
-# LSTM Model
 class LSTMModel(nn.Module):
-    def __init__(self, input_size=1, hidden_size=100, num_layers=2, output_size=1):
+    def __init__(self, input_size=1, hidden_size=50, num_layers=2):
         super(LSTMModel, self).__init__()
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=0.2)
-        self.fc = nn.Linear(hidden_size, output_size)
-
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
+        self.fc = nn.Linear(hidden_size, 1)
     def forward(self, x):
         h0 = torch.zeros(self.lstm.num_layers, x.size(0), self.lstm.hidden_size)
         c0 = torch.zeros(self.lstm.num_layers, x.size(0), self.lstm.hidden_size)
