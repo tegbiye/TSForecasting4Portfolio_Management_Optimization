@@ -107,6 +107,24 @@ For market oportunities and risks:
   - Economic Factors: A 2026 recession or rate hikes could reverse the trend.
   - Event Risks: Regulatory changes could exceed the CI.
 
+# Task 4: Optimize Portfolio Based on Forecast
+
+> The process involves computing expected returns, a covariance matrix from historical data, and optimizing the Efficient Frontier to identify the Maximum Sharpe Ratio Portfolio and Minimum Volatility Portfolio. The recommended portfolio is selected based on risk-adjusted return and summarized with weights, expected return, volatility, and Sharpe Ratio.
+
+> Using the result  of 20% ($319 to $383) 
+
+  Constraint: weights[0] >= 0.05.
+  Optimal Weights (estimated):
+
+  TSLA: 10% (20% return, ~35% volatility).
+  BND: 60% (2.5% return, ~6% volatility).
+  SPY: 30% (9% return, ~15% volatility).
+
+  Recommended Portfolio: Maximum Sharpe Ratio Portfolio
+  Optimal Weights: TSLA=10%, BND=60.21%, SPY=29.79%
+  Expected Annual Return: 5.35%
+  Annualized Volatility: 6.73%
+  Sharpe Ratio: 0.50
 
 
 # Project Structure
@@ -120,6 +138,7 @@ TSForecasting4Portfolio_Management_Optimization/
 ├── images/
 ├── notebooks/
 │   └── README.md
+|   ├── portfoliobased-forecast.ipynb   # future forecast model time series
 |   ├── forcast-future-market.ipynb   # future forecast model time series
 |   ├── forcast-model-ts.ipynb   # forecast model time series
 |   └── preprocess-explore.ipynb   # Preprocess and explore
