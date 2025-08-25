@@ -34,9 +34,9 @@ class TimeSeriesDataset(Dataset):
         return self.X[idx]
 
 class LSTMModel(nn.Module):
-    def __init__(self, input_size=1, hidden_size=50, num_layers=2):
+    def __init__(self, input_size=1, hidden_size=50, num_layers=2, dropout=0.2):
         super(LSTMModel, self).__init__()
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=dropout)
         self.fc = nn.Linear(hidden_size, 1)
     def forward(self, x):
         h0 = torch.zeros(self.lstm.num_layers, x.size(0), self.lstm.hidden_size)
@@ -44,6 +44,25 @@ class LSTMModel(nn.Module):
         out, _ = self.lstm(x, (h0, c0))
         out = self.fc(out[:, -1, :])
         return out
+
+# EarlyStopping class
+class EarlyStopping:
+    def __init__(self, patience=10, min_delta=0):
+        self.patience = patience
+        self.min_delta = min_delta
+        self.best_loss = float('inf')
+        self.counter = 0
+        self.early_stop = False
+
+    def __call__(self, val_loss):
+        if val_loss < self.best_loss - self.min_delta:
+            self.best_loss = val_loss
+            self.counter = 0
+        else:
+            self.counter += 1
+            if self.counter >= self.patience:
+                self.early_stop = True
+
 
 def calculate_metrics(true, pred):
     mae = mean_absolute_error(true, pred)
